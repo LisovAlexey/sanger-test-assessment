@@ -4,9 +4,12 @@ import typing as tp
 
 
 def parse_args(args: tp.List[str]) -> tp.Dict[str, str]:
+    result = {}
     for arg in args:
         user_input = input("Please provide " + arg + ": ")
         # TODO: Add validation of user input
+        result[arg] = user_input
+    return result
 
 
 def read_commands():
