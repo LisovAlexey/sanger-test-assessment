@@ -1,5 +1,10 @@
 # Sanger Institute Software Developer Test Assessment
 
+## Setup
+```
+pip install psycopg2-binary, sqlalchemy, mypy, sqlalchemy-utils
+```
+
 ## 1. Modeling database scheme
 
 ### Samples table
