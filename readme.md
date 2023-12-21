@@ -2,7 +2,7 @@
 
 ## Setup
 ```
-pip install psycopg2-binary, sqlalchemy, mypy, sqlalchemy-utils
+pip install psycopg2-binary, sqlalchemy, mypy, sqlalchemy-utils, sqlalchemy-stubs
 ```
 
 ## 1. Modeling database scheme
@@ -38,7 +38,7 @@ But this is a point to discuss.
 Separate plate table not required because there are not specific attributes on plates
 
 All the wells that have something inside will be recorded in database.
-Not filled wells will not be recorded
+Not filled wells will not be recorded.
 
 
 Also: 
