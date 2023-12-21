@@ -10,19 +10,19 @@ class PlateBarcodeBadFormatting(Exception):
 class WellPositionBadFormatting(Exception):
     pass
 
+class WellPositionOutOfBounds(Exception):
+    pass
+
 class WellPositionOccupied(Exception):
     pass
 
 
-def add_to_plate(sample_id: int, plate_barcode: str, well_position: str):
+def add_to_plate(sample_id: int, plate_barcode: str, well_position: str) -> None:
+    """
+    Adds sample to well in specified plate
+    :param sample_id: int, positive
+    :param plate_barcode: str, format: "DN<number>"
+    :param well_position: str, format: "<Row><Column>" where <Row> is Char from A to H and <Column> is int from 1 to 12
+    :return:
+    """
     pass
-
-"""
-Qustions:
-1. Should the plate be created or it will be created when adding to the plate?
-2. What the 'An individual sample can be added to one or many wells.' exactly means? 
-So, does one sample has only one tube? If so, then how sample can be added to several wells?
-If no, then how we put sample in several tubes? We always receive sample(and generate new sample id) to new tube. 
-And when sample transferred from one tube to another the source tube is empty. 
-So we can't have two tubes with the same sample.
-"""
