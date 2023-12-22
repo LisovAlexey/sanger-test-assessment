@@ -7,14 +7,21 @@ from fixtures import database_connection, engine, database_layer
 
 class TestRecordReceipt:
     def test_record_receipt(self, database_layer):
-        database_layer.record_receipt(customer_sample_name="test_tube", tube_barcode="NT00001")
+        new_sample = database_layer.record_receipt(customer_sample_name="test_tube", tube_barcode="NT00001")
+        assert new_sample is not None
 
     def test_record_receipt_with_non_string_object(self, database_layer):
         # Any str convertable objects can be passed in function
-        database_layer.record_receipt(customer_sample_name=123, tube_barcode="NT00001")
+        new_sample = database_layer.record_receipt(customer_sample_name="123", tube_barcode="NT00001")
+        assert new_sample is not None
+        assert new_sample.tube_barcode == "NT00001"
+        assert new_sample.customer_sample_name == "123"
     def test_record_receipt_with_non_string_object_any_number_format(self, database_layer):
         # Any str convertable objects can be passed in function
-        database_layer.record_receipt(customer_sample_name=123, tube_barcode="NT1")
+        new_sample = database_layer.record_receipt(customer_sample_name="123", tube_barcode="NT1")
+        assert new_sample is not None
+        assert new_sample.tube_barcode == "NT1"
+        assert new_sample.customer_sample_name == "123"
 
     def test_record_receipt_with_wrong_tube_barcode_format_letters(self, database_layer):
         # Any str convertable objects can be passed in function
@@ -34,7 +41,7 @@ class TestRecordReceipt:
 
     def test_record_receipt_dublicate_tubes(self, database_layer):
         # Any str convertable objects can be passed in function
-        database_layer.record_receipt(customer_sample_name="test_tube", tube_barcode="NT1")
+        new_sample = database_layer.record_receipt(customer_sample_name="test_tube", tube_barcode="NT1")
 
         with pytest.raises(SampleAlreadyReceived):
             database_layer.record_receipt(customer_sample_name="test_tube", tube_barcode="NT1")
