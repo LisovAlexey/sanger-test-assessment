@@ -1,12 +1,17 @@
 import re
-class RegexFormatValidator:
+import typing as tp
+class RegexFormatExtractor:
     def __init__(self, regex_format: str):
         self.regex_format = regex_format
 
     def validate(self, string: str) -> bool:
-        return re.match(self.regex_format, string)
+        return bool(re.findall(self.regex_format, string))
 
-tube_barcode_validator = RegexFormatValidator(regex_format="^NT\d+$")
-plate_barcode_validator = RegexFormatValidator(regex_format="^DN\d+$")
+    def extract(self, string: str) -> tp.List[tp.Tuple[str]]:
+        return re.findall(self.regex_format, string)
 
-well_position_validator = RegexFormatValidator(regex_format="^([A-H])[1-9]\d*$")
+tube_barcode_validator = RegexFormatExtractor(regex_format="^NT\d+$")
+plate_barcode_validator = RegexFormatExtractor(regex_format="^DN\d+$")
+
+well_position_validator = RegexFormatExtractor(regex_format="^([A-H])([1-9]\d*)$")
+

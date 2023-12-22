@@ -67,4 +67,16 @@ class TestSampleTable:
         assert new_sample.id > 0
         assert new_sample2.id > 0
 
+    def test_search_object_by_id(self, session):
+        new_sample = Sample(id=1, customer_sample_name="test", tube_barcode="NT00001")
+        session.add(new_sample)
+        session.commit()
+
+        query = session.query(Sample.id).filter(Sample.id == 1)
+        assert session.query(query.exists()).scalar()
+
+        query = session.query(Sample.id).filter(Sample.id == 2)
+        assert not session.query(query.exists()).scalar()
+
+
 
