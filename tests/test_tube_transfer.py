@@ -1,12 +1,13 @@
 import pytest
 from database import OccupiedDestinationTube, TubeNotFound, TubeBarcodeBadFormat, DatabaseLayer
-from fixtures import engine, database_connection, database_layer
+from fixtures import engine, database_connection, database_layer, session
 from test_add_to_plate import sample_one, sample_two
 
 class TestTubeTransfer:
 
     def test_tube_transfer(self, database_layer, sample_one):
         database_layer.tube_transfer(sample_one.tube_barcode, "NT999")
+        assert sample_one.tube_barcode == "NT999"
 
     def test_tube_transfer_bad_format(self, database_layer, sample_one):
         with pytest.raises(TubeBarcodeBadFormat):

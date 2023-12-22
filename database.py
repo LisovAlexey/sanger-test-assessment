@@ -1,5 +1,6 @@
 import typing as tp
 
+from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
@@ -27,6 +28,11 @@ class BarcodeBadFormat(Exception):
 class WellPositionBadFormatting(Exception):
     def __init__(self, well_position: str, *args, **kwargs):
         default_message = f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: f{well_position}'
+        super().__init__(default_message, *args, **kwargs)
+
+class OccupiedDestinationTube(Exception):
+    def __init__(self, tube_barcode: str, *args, **kwargs):
+        default_message = f'Tube with barcode {tube_barcode} already occupied.'
         super().__init__(default_message, *args, **kwargs)
 
 class SampleNotFound(Exception):
@@ -163,7 +169,30 @@ class DatabaseLayer:
         :param destination_tube_barcode: str, format: NT<number>
         :return: None
         """
-        pass
+
+        if not tube_barcode_validator.validate(source_tube_barcode):
+            raise TubeBarcodeBadFormat(barcode=source_tube_barcode)
+
+        if not tube_barcode_validator.validate(destination_tube_barcode):
+            raise TubeBarcodeBadFormat(barcode=destination_tube_barcode)
+
+        fetched_dest_sample = self.session.query(Sample).filter(Sample.tube_barcode == destination_tube_barcode).first()
+
+        if fetched_dest_sample:
+            raise OccupiedDestinationTube(tube_barcode=destination_tube_barcode)
+
+        fetched_source_sample = self.session.query(Sample).filter(Sample.tube_barcode == source_tube_barcode).first()
+
+        if not fetched_source_sample:
+            raise TubeNotFound(tube_barcode=source_tube_barcode)
+
+        fetched_source_sample.tube_barcode = destination_tube_barcode
+
+        try:
+            self.session.commit()
+        except IntegrityError as exc:
+            self.session.rollback()
+
 
 class WellPositionOccupied(Exception):
     pass
@@ -182,7 +211,5 @@ class ContainerBarcodeBadFormatting(Exception):
     pass
 
 
-class OccupiedDestinationTube(Exception):
-    pass
 
 
