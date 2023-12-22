@@ -8,3 +8,5 @@ class RegexFormatValidator:
 
 tube_barcode_validator = RegexFormatValidator(regex_format="^NT\d+$")
 plate_barcode_validator = RegexFormatValidator(regex_format="^DN\d+$")
+
+well_position_validator = RegexFormatValidator(regex_format="^([A-H])[1-9]\d*$")
