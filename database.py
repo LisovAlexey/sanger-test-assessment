@@ -1,4 +1,8 @@
+import typing as tp
+
 from init_db import Well, Sample
+from reports import TubeReport, PlateReport
+
 
 
 class DatabaseLayer:
@@ -22,6 +26,21 @@ class DatabaseLayer:
         :param customer_sample_name: str, any format
         :param tube_barcode: str, format: NT<number>
         :return: Sample ID
+        """
+        pass
+
+    def list_samples_in(container_barcode: str) -> tp.Union[TubeReport, PlateReport]:
+        """
+        :param container_barcode: str Tube: [NT<number>]  or Plate: [DN<number>]
+        :return: report for specified container
+        """
+        pass
+
+    def tube_transfer(source_tube_barcode: str, destination_tube_barcode: str) -> None:
+        """
+        :param source_tube_barcode: str, format: NT<number>
+        :param destination_tube_barcode: str, format: NT<number>
+        :return: None
         """
         pass
 
@@ -62,3 +81,17 @@ class SampleAlreadyReceived(Exception):
     # Duplicate barcodes
     pass
 
+
+class ContainerBarcodeBadFormatting(Exception):
+    pass
+
+
+
+
+
+class OccupiedDestinationTube(Exception):
+    pass
+
+
+class TubeNotFound(Exception):
+    pass
