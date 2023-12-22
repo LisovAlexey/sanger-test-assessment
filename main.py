@@ -22,7 +22,7 @@ def read_commands():
     elif user_input.lower() == 'record_receipt':
         print(parse_args(["customer_sample_name", "tube_barcode"]))
     elif user_input.lower() == 'add_to_plate':
-        print(parse_args(["sample_id", "plate_barcode", "well_position"]))
+        print(parse_args(["sample_one.id", "plate_barcode", "well_position"]))
     elif user_input.lower() == 'tube_transfer':
         print(parse_args(["source_tube_barcode", "destination_tube_barcode"]))
     elif user_input.lower() == 'list_samples_in':
