@@ -19,6 +19,11 @@ class PlateBarcodeBadFormat(Exception):
         default_message = f'Plate barcode wrong format. Expected: "DN<Number>". Got: f{barcode}'
         super().__init__(default_message, *args, **kwargs)
 
+class BarcodeBadFormat(Exception):
+    def __init__(self, barcode: str, *args, **kwargs):
+        default_message = f'Bad barcode format. Expected: "DN<Number>" for plate or "NT<Number>" for tube. Got: f{barcode}'
+        super().__init__(default_message, *args, **kwargs)
+
 class WellPositionBadFormatting(Exception):
     def __init__(self, well_position: str, *args, **kwargs):
         default_message = f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: f{well_position}'
@@ -34,6 +39,18 @@ class SampleIdBadFormatting(Exception):
     def __init__(self, sample_id: int, *args, **kwargs):
         default_message = f'sample_id {sample_id} bad format. Expected positive number.'
         super().__init__(default_message, *args, **kwargs)
+
+
+class TubeNotFound(Exception):
+    def __init__(self, tube_barcode: str, *args, **kwargs):
+        default_message = f'Tube with {tube_barcode} not found.'
+        super().__init__(default_message, *args, **kwargs)
+
+class OccupiedWellsNotFound(Exception):
+    def __init__(self, plate_barcode: str, *args, **kwargs):
+        default_message = f'Occupied wells not found for {plate_barcode}.'
+        super().__init__(default_message, *args, **kwargs)
+
 
 
 class DatabaseLayer:
@@ -104,14 +121,43 @@ class DatabaseLayer:
         return well
 
 
-    def list_samples_in(container_barcode: str) -> tp.Union[TubeReport, PlateReport]:
+    def list_samples_in(self, container_barcode: str) -> tp.Union[TubeReport, PlateReport]:
         """
         :param container_barcode: str Tube: [NT<number>]  or Plate: [DN<number>]
         :return: report for specified container
         """
-        pass
 
-    def tube_transfer(source_tube_barcode: str, destination_tube_barcode: str) -> None:
+        if tube_barcode_validator.validate(container_barcode):
+            return self._get_tube_report(tube_barcode=container_barcode)
+        elif plate_barcode_validator.validate(container_barcode):
+            return self._get_plate_report(plate_barcode=container_barcode)
+        else:
+            raise BarcodeBadFormat(barcode=container_barcode)
+
+    def _get_tube_report(self, tube_barcode: str) -> TubeReport:
+
+        fetched_sample = self.session.query(Sample).filter(Sample.tube_barcode == tube_barcode).first()
+        if fetched_sample is None:
+            raise TubeNotFound(tube_barcode=tube_barcode)
+        else:
+            return TubeReport(
+                tube_barcode=tube_barcode,
+                sample_id=fetched_sample.id,
+                customer_sample_name=fetched_sample.customer_sample_name
+            )
+
+
+    def _get_plate_report(self, plate_barcode: str) -> PlateReport:
+        fetched_wells = self.session.query(Well).filter(Well.plate_barcode == plate_barcode).all()
+        if not fetched_wells:
+            raise OccupiedWellsNotFound(plate_barcode=plate_barcode)
+        else:
+            return PlateReport(
+                plate_barcode=plate_barcode,
+                wells=fetched_wells
+            )
+
+    def tube_transfer(self, source_tube_barcode: str, destination_tube_barcode: str) -> None:
         """
         :param source_tube_barcode: str, format: NT<number>
         :param destination_tube_barcode: str, format: NT<number>
@@ -140,5 +186,3 @@ class OccupiedDestinationTube(Exception):
     pass
 
 
-class TubeNotFound(Exception):
-    pass

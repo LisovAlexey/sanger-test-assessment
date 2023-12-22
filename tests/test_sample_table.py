@@ -78,5 +78,24 @@ class TestSampleTable:
         query = session.query(Sample.id).filter(Sample.id == 2)
         assert not session.query(query.exists()).scalar()
 
+    def test_search_object_by_tube_barcode(self, session):
+        new_sample = Sample(id=1, customer_sample_name="test", tube_barcode="NT00001")
+        session.add(new_sample)
+        session.commit()
+
+        fetched_sample = session.query(Sample).filter(Sample.tube_barcode == "NT00001").first()
+        assert fetched_sample.id == 1
+        assert fetched_sample.customer_sample_name == "test"
+        assert fetched_sample.tube_barcode == "NT00001"
+
+    def test_search_missing_object_by_tube_barcode(self, session):
+        new_sample = Sample(id=1, customer_sample_name="test", tube_barcode="NT00001")
+        session.add(new_sample)
+        session.commit()
+
+        fetched_sample = session.query(Sample).filter(Sample.tube_barcode == "NT99999").first()
+        assert fetched_sample is None
+
+
 
 
