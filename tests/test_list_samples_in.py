@@ -1,6 +1,6 @@
 import pytest
 
-from database import BadBarcodeFormat, TubeReport, PlateReport, DatabaseLayer, \
+from database import TubeBarcodeBadFormat, TubeReport, PlateReport, DatabaseLayer, \
     TubeNotFound
 from fixtures import database_layer, session, engine, database_connection
 from test_add_to_plate import sample_one, sample_two
@@ -58,5 +58,5 @@ class TestListSamplesIn:
             database_layer.list_samples_in(container_barcode="DN9999")
 
     def test_list_samples_in_bad_barcode_format(self, database_layer):
-        with pytest.raises(BadBarcodeFormat):
+        with pytest.raises(TubeBarcodeBadFormat):
             database_layer.list_samples_in(container_barcode="9999")

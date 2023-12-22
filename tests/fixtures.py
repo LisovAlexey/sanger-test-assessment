@@ -40,6 +40,6 @@ def session(database_connection):
     session.close()
     transaction.rollback()
 
-@pytest.fixture(scope="class")
-def database_layer(database_connection):
-    yield DatabaseLayer(database_connection)
+@pytest.fixture(scope="function")
+def database_layer(session):
+    yield DatabaseLayer(session)
