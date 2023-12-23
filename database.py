@@ -58,6 +58,12 @@ class OccupiedWellsNotFound(Exception):
         super().__init__(default_message, *args, **kwargs)
 
 
+class SampleAlreadyReceived(Exception):
+    # Duplicate barcodes
+    def __init__(self, tube_barcode: str, *args, **kwargs):
+        default_message = f'Sample already received for {tube_barcode}.'
+        super().__init__(default_message, *args, **kwargs)
+
 
 class DatabaseLayer:
     # Store db connection and give users point to connect
@@ -81,7 +87,7 @@ class DatabaseLayer:
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
-            raise SampleAlreadyReceived from exc
+            raise SampleAlreadyReceived(tube_barcode=tube_barcode) from exc
 
         return sample
 
@@ -199,11 +205,6 @@ class WellPositionOccupied(Exception):
 
 
 class BadFunctionSignature(Exception):
-    pass
-
-
-class SampleAlreadyReceived(Exception):
-    # Duplicate barcodes
     pass
 
 
