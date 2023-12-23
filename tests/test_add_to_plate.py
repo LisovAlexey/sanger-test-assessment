@@ -1,22 +1,21 @@
 import pytest
-from sqlalchemy import Engine
-from sqlalchemy.orm import sessionmaker
 
 from fixtures import database_connection, engine, database_layer, session
 
-from database import SampleIdBadFormatting, SampleNotFound, WellPositionOccupied, \
-    DatabaseLayer, PlateBarcodeBadFormat
+from database import SampleIdBadFormatting, SampleNotFound, WellPositionOccupied, PlateBarcodeBadFormat
 from reports import WellPositionBadFormatting
-from init_db import EngineCreator
+
 
 @pytest.fixture(scope="function")
 def sample_one(database_layer):
     # Do not need to be rolled back because sessions are rollbacked
     yield database_layer.record_receipt(customer_sample_name="test", tube_barcode="NT123")
 
+
 @pytest.fixture(scope="function")
 def sample_two(database_layer):
     yield database_layer.record_receipt(customer_sample_name="test second sample", tube_barcode="NT333")
+
 
 class TestAddToPlate:
 
@@ -84,4 +83,3 @@ class TestAddToPlate:
     def test_sample_id_wrong_format(self, database_layer):
         with pytest.raises(SampleIdBadFormatting):
             database_layer.add_to_plate(sample_id=-1, plate_barcode="DN1", well_position="A1")
-

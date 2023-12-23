@@ -200,14 +200,3 @@ class DatabaseLayer:
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
-
-
-
-
-
-class BadFunctionSignature(Exception):
-    pass
-
-
-class ContainerBarcodeBadFormatting(Exception):
-    pass

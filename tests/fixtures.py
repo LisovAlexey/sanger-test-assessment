@@ -1,9 +1,5 @@
 import pytest
-
-import pytest
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
 
 from database import DatabaseLayer
 from init_db import EngineCreator, Base

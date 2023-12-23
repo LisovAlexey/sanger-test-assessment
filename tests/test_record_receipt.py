@@ -1,5 +1,5 @@
 import pytest
-from database import BadFunctionSignature, TubeBarcodeBadFormat, SampleAlreadyReceived, DatabaseLayer
+from database import TubeBarcodeBadFormat, SampleAlreadyReceived
 from fixtures import database_connection, engine, database_layer, session
 
 

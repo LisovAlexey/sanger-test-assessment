@@ -1,6 +1,5 @@
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import Column, Integer, String, CheckConstraint, ForeignKey, create_engine, Engine
-from sqlalchemy_utils import database_exists, create_database
 
 import typing as tp
 Base = declarative_base()
@@ -63,14 +62,3 @@ class EngineCreator:
 
 if __name__ == '__main__':
     EngineCreator.drop_test_database()
-
-# engine = create_engine('postgresql+psycopg2://user:secret@127.0.0.1:5432/samples')
-#
-# if not database_exists(engine.url):
-#     create_database(engine.url)
-#
-#
-# Session = sessionmaker(bind=engine)
-# session = Session()
-#
-# Base.metadata.create_all(engine)

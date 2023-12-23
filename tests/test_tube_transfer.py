@@ -1,5 +1,5 @@
 import pytest
-from database import OccupiedDestinationTube, TubeNotFound, TubeBarcodeBadFormat, DatabaseLayer
+from database import OccupiedDestinationTube, TubeNotFound, TubeBarcodeBadFormat
 from fixtures import engine, database_connection, database_layer, session
 from test_add_to_plate import sample_one, sample_two
 
