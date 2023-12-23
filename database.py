@@ -1,11 +1,9 @@
 import typing as tp
 
-from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
 
 from init_db import Well, Sample
-from reports import TubeReport, PlateReport
+from reports import TubeReport, PlateReport, WellPositionBadFormatting, WellPositionFormatAdapter
 
 from format_validator import tube_barcode_validator, plate_barcode_validator, well_position_validator
 
@@ -15,25 +13,24 @@ class TubeBarcodeBadFormat(Exception):
         default_message = f'Tube barcode wrong format. Expected: "NT<Number>". Got: f{barcode}'
         super().__init__(default_message, *args, **kwargs)
 
+
 class PlateBarcodeBadFormat(Exception):
     def __init__(self, barcode: str, *args, **kwargs):
         default_message = f'Plate barcode wrong format. Expected: "DN<Number>". Got: f{barcode}'
         super().__init__(default_message, *args, **kwargs)
+
 
 class BarcodeBadFormat(Exception):
     def __init__(self, barcode: str, *args, **kwargs):
         default_message = f'Bad barcode format. Expected: "DN<Number>" for plate or "NT<Number>" for tube. Got: f{barcode}'
         super().__init__(default_message, *args, **kwargs)
 
-class WellPositionBadFormatting(Exception):
-    def __init__(self, well_position: str, *args, **kwargs):
-        default_message = f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: f{well_position}'
-        super().__init__(default_message, *args, **kwargs)
 
 class OccupiedDestinationTube(Exception):
     def __init__(self, tube_barcode: str, *args, **kwargs):
         default_message = f'Tube with barcode {tube_barcode} already occupied.'
         super().__init__(default_message, *args, **kwargs)
+
 
 class SampleNotFound(Exception):
     def __init__(self, sample_id: int, *args, **kwargs):
@@ -52,6 +49,7 @@ class TubeNotFound(Exception):
         default_message = f'Tube with {tube_barcode} not found.'
         super().__init__(default_message, *args, **kwargs)
 
+
 class OccupiedWellsNotFound(Exception):
     def __init__(self, plate_barcode: str, *args, **kwargs):
         default_message = f'Occupied wells not found for {plate_barcode}.'
@@ -62,6 +60,12 @@ class SampleAlreadyReceived(Exception):
     # Duplicate barcodes
     def __init__(self, tube_barcode: str, *args, **kwargs):
         default_message = f'Sample already received for {tube_barcode}.'
+        super().__init__(default_message, *args, **kwargs)
+
+
+class WellPositionOccupied(Exception):
+    def __init__(self, well_position: str, plate_barcode: str, *args, **kwargs):
+        default_message = f'Position {well_position} already occupied in plate {plate_barcode}.'
         super().__init__(default_message, *args, **kwargs)
 
 
@@ -111,12 +115,7 @@ class DatabaseLayer:
         if not well_position_validator.validate(well_position):
             raise WellPositionBadFormatting(well_position=well_position)
 
-        letter_row, letter_col = well_position_validator.extract(well_position)[0]
-        row = ord(letter_row) - ord('A') + 1
-        col = int(letter_col)
-
-        if row <= 0 or row > 8 or col <= 0 or col > 12:
-            raise WellPositionBadFormatting(well_position=well_position)
+        row, col = WellPositionFormatAdapter.get_row_col_position(well_position=well_position)
 
         query = self.session.query(Sample.id).filter(Sample.id == sample_id)
         if not self.session.query(query.exists()).scalar():
@@ -128,10 +127,9 @@ class DatabaseLayer:
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
-            raise WellPositionOccupied from exc
+            raise WellPositionOccupied(well_position=well_position, plate_barcode=plate_barcode) from exc
 
         return well
-
 
     def list_samples_in(self, container_barcode: str) -> tp.Union[TubeReport, PlateReport]:
         """
@@ -158,15 +156,19 @@ class DatabaseLayer:
                 customer_sample_name=fetched_sample.customer_sample_name
             )
 
-
     def _get_plate_report(self, plate_barcode: str) -> PlateReport:
-        fetched_wells = self.session.query(Well).filter(Well.plate_barcode == plate_barcode).all()
-        if not fetched_wells:
+        fetched_wells_and_samples = (
+            self.session.query(Well, Sample)
+                .join(Well, Sample.id == Well.sample_id)
+                .filter(Well.plate_barcode == plate_barcode)
+                .all()
+            )
+        if not fetched_wells_and_samples:
             raise OccupiedWellsNotFound(plate_barcode=plate_barcode)
         else:
             return PlateReport(
                 plate_barcode=plate_barcode,
-                wells=fetched_wells
+                wells_and_samples=fetched_wells_and_samples
             )
 
     def tube_transfer(self, source_tube_barcode: str, destination_tube_barcode: str) -> None:
@@ -200,8 +202,7 @@ class DatabaseLayer:
             self.session.rollback()
 
 
-class WellPositionOccupied(Exception):
-    pass
+
 
 
 class BadFunctionSignature(Exception):
@@ -210,7 +211,3 @@ class BadFunctionSignature(Exception):
 
 class ContainerBarcodeBadFormatting(Exception):
     pass
-
-
-
-

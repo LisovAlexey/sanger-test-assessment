@@ -9,6 +9,8 @@ from env import force_get_env_var
 from init_db import EngineCreator, Base
 from dotenv import load_dotenv
 
+from reports import print_report
+
 
 def parse_args(args: tp.List[tp.Tuple[str, tp.Type]]) -> tp.Dict[str, tp.Any]:
     result = {}
@@ -23,6 +25,7 @@ def parse_args(args: tp.List[tp.Tuple[str, tp.Type]]) -> tp.Dict[str, tp.Any]:
                 print(str(e))
     return result
 
+
 def read_commands(database_layer: DatabaseLayer) -> None:
     user_input = input("Enter your command (type 'exit' to quit): ")
 
@@ -32,16 +35,22 @@ def read_commands(database_layer: DatabaseLayer) -> None:
         exit()
     elif user_input.lower() == 'record_receipt':
         kwargs = parse_args([("customer_sample_name", str), ("tube_barcode", str)])
-        database_layer.record_receipt(**kwargs)
+        sample = database_layer.record_receipt(**kwargs)
+        print("New sample id: " + str(sample.id))
     elif user_input.lower() == 'add_to_plate':
         kwargs = parse_args([("sample_id", int), ("plate_barcode", str), ("well_position", str)])
         database_layer.add_to_plate(**kwargs)
+        print("Successful addition")
     elif user_input.lower() == 'tube_transfer':
         kwargs = parse_args([("source_tube_barcode", str), ("destination_tube_barcode", str)])
         database_layer.tube_transfer(**kwargs)
+        print("Successful tube transfer")
     elif user_input.lower() == 'list_samples_in':
         kwargs = parse_args([("container_barcode", str)])
-        database_layer.tube_transfer(**kwargs)
+        report = database_layer.list_samples_in(**kwargs)
+        print(print_report(report))
+    else:
+        print(f"Command {user_input} not found")
 
 
 def read_database_credentials_from_env(type: str) -> tp.Dict[str, tp.Any]:
@@ -86,4 +95,4 @@ if __name__ == "__main__":
         try:
             read_commands(database_layer)
         except Exception as e:
-            print(str(e))
+            print(repr(e), str(e))

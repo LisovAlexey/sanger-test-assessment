@@ -4,8 +4,9 @@ from sqlalchemy.orm import sessionmaker
 
 from fixtures import database_connection, engine, database_layer, session
 
-from database import SampleIdBadFormatting, SampleNotFound, WellPositionBadFormatting, WellPositionOccupied, \
+from database import SampleIdBadFormatting, SampleNotFound, WellPositionOccupied, \
     DatabaseLayer, PlateBarcodeBadFormat
+from reports import WellPositionBadFormatting
 from init_db import EngineCreator
 
 @pytest.fixture(scope="function")

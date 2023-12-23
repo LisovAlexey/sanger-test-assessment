@@ -124,6 +124,18 @@ class TestWellTable:
         with pytest.raises(IntegrityError):
             self.session.commit()
 
+    def test_joining_well_and_sample_table(self):
+        new_well = Well(plate_barcode="DN00001", row=8, col=1, sample_id=self.test_sample.id)
+        self.session.add(new_well)
+        self.session.commit()
+
+        fetched_wells_and_samples = self.session.query(Well, Sample)\
+            .join(Well, Sample.id == Well.sample_id)\
+            .filter(Well.plate_barcode == "DN00001")\
+            .all()
+
+        assert fetched_wells_and_samples == [(new_well, self.test_sample)]
+
 
 
 
