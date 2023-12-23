@@ -1,7 +1,8 @@
 import pytest
 from database import OccupiedDestinationTube, TubeNotFound, TubeBarcodeBadFormat
 from fixtures import engine, database_connection, database_layer, session
-from test_add_to_plate import sample_one, sample_two
+from tests.test_objects import sample_one, sample_two
+
 
 class TestTubeTransfer:
 
@@ -20,5 +21,3 @@ class TestTubeTransfer:
     def test_tube_transfer_occupied_destination_tube(self, sample_one, sample_two, database_layer):
         with pytest.raises(OccupiedDestinationTube):
             database_layer.tube_transfer(sample_one.tube_barcode, sample_two.tube_barcode)
-
-

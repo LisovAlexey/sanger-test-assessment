@@ -1,20 +1,10 @@
 import pytest
 
-from fixtures import database_connection, engine, database_layer, session
+from tests.fixtures import database_layer, session, database_connection, engine
 
 from database import SampleIdBadFormatting, SampleNotFound, WellPositionOccupied, PlateBarcodeBadFormat
 from reports import WellPositionBadFormatting
-
-
-@pytest.fixture(scope="function")
-def sample_one(database_layer):
-    # Do not need to be rolled back because sessions are rollbacked
-    yield database_layer.record_receipt(customer_sample_name="test", tube_barcode="NT123")
-
-
-@pytest.fixture(scope="function")
-def sample_two(database_layer):
-    yield database_layer.record_receipt(customer_sample_name="test second sample", tube_barcode="NT333")
+from tests.test_objects import sample_one, sample_two
 
 
 class TestAddToPlate:

@@ -26,7 +26,6 @@ class TestFormatValidator:
     def test_plate_barcode_validator_no_number_id(self):
         assert not tube_barcode_validator.validate("DN")
 
-
     def test_well_position_validator(self):
         assert well_position_validator.validate("A1")
         assert well_position_validator.validate("H1")

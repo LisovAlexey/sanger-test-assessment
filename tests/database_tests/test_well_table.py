@@ -1,15 +1,15 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
-from fixtures import session, database_connection, engine, database_layer
 
 from init_db import Sample, Well
-from tests.test_add_to_plate import sample_one, sample_two
+from tests.test_objects import sample_one, sample_two
+from tests.fixtures import session, database_connection, engine, database_layer
 
 
 class TestWellTable:
 
     def test_creating_well(self, session, sample_one):
-        assert sample_one.id != None
+        assert sample_one.id is not None
         new_well = Well(plate_barcode="DN00001", row=1, col=1, sample_id=sample_one.id)
         session.add(new_well)
         session.commit()

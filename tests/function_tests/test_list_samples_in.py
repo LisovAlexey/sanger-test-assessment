@@ -1,9 +1,9 @@
 import pytest
 
-from database import TubeBarcodeBadFormat, TubeReport, PlateReport, DatabaseLayer, \
+from database import TubeReport, PlateReport, \
     TubeNotFound, OccupiedWellsNotFound, BarcodeBadFormat
-from fixtures import database_layer, session, engine, database_connection
-from test_add_to_plate import sample_one, sample_two
+from tests.fixtures import database_layer, session, engine, database_connection
+from tests.test_objects import sample_one, sample_two
 
 
 @pytest.fixture(scope="module")

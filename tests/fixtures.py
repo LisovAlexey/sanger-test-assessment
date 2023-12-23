@@ -23,9 +23,9 @@ def database_connection(engine):
     connection.close()
     print("connection close")
 
+
 @pytest.fixture(scope="function")
 def session(database_connection):
-
     transaction = database_connection.begin()
 
     Session = sessionmaker(bind=database_connection)
@@ -35,6 +35,7 @@ def session(database_connection):
 
     session.close()
     transaction.rollback()
+
 
 @pytest.fixture(scope="function")
 def database_layer(session):

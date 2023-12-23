@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
-from fixtures import session, database_connection, engine
+from tests.fixtures import session, database_connection, engine
 
 from init_db import Sample
 
@@ -17,7 +17,7 @@ class TestSampleTable:
         assert new_sample_fetched.customer_sample_name == "test"
         assert new_sample_fetched.tube_barcode == "NT00001"
 
-    def test_creating_sample_dublicate(self, session):
+    def test_creating_sample_duplicate(self, session):
         new_sample = Sample(id=1, customer_sample_name="test", tube_barcode="NT00001")
         session.add(new_sample)
         session.commit()
@@ -28,7 +28,7 @@ class TestSampleTable:
         with pytest.raises(IntegrityError):
             session.commit()
 
-    def test_creating_tube_barcode_dublicate(self, session):
+    def test_creating_tube_barcode_duplicate(self, session):
         new_sample = Sample(customer_sample_name="test", tube_barcode="NT00001")
         session.add(new_sample)
         session.commit()
@@ -39,7 +39,7 @@ class TestSampleTable:
         with pytest.raises(IntegrityError):
             session.commit()
 
-    def test_creating_customer_sample_name_dublicate(self, session):
+    def test_creating_customer_sample_name_duplicate(self, session):
         new_sample = Sample(customer_sample_name="test", tube_barcode="NT00001")
         session.add(new_sample)
         session.commit()
@@ -54,7 +54,7 @@ class TestSampleTable:
         with pytest.raises(IntegrityError):
             session.commit()
 
-    def test_autoincrease_id(self, session):
+    def test_auto_increase_id(self, session):
         new_sample = Sample(customer_sample_name="test", tube_barcode="NT00001")
         session.add(new_sample)
         session.commit()
@@ -95,7 +95,3 @@ class TestSampleTable:
 
         fetched_sample = session.query(Sample).filter(Sample.tube_barcode == "NT99999").first()
         assert fetched_sample is None
-
-
-
-

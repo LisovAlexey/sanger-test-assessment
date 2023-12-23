@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import database_exists, create_database  # type: ignore
 from init_db import Base, EngineCreator, Sample
 
 
@@ -17,4 +17,3 @@ class TestDatabase:
         if not database_exists(engine.url):
             create_database(engine.url)
         Base.metadata.create_all(engine)
-
