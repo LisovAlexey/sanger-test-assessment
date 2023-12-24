@@ -7,7 +7,6 @@ from init_db import EngineCreator, Base
 
 @pytest.fixture(scope="module")
 def engine():
-    print("setup engine")
     engine = EngineCreator.create_test_database()
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -17,11 +16,9 @@ def engine():
 @pytest.fixture(scope="module")
 def database_connection(engine):
     connection = engine.connect()
-    print("setup connection")
     yield connection
 
     connection.close()
-    print("connection close")
 
 
 @pytest.fixture(scope="function")

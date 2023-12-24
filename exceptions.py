@@ -8,19 +8,19 @@ class FormattingException(BaseApplicationException):
 
 class BarcodeBadFormat(FormattingException):
     def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Bad barcode format. Expected: "DN<Number>" for plate or "NT<Number>" for tube. Got: f{barcode}'
+        default_message = f'Bad barcode format. Expected: "DN<Number>" for plate or "NT<Number>" for tube. Got: {barcode}'
         super().__init__(default_message, *args, **kwargs)
 
 
 class TubeBarcodeBadFormat(BarcodeBadFormat):
     def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Tube barcode wrong format. Expected: "NT<Number>". Got: f{barcode}'
+        default_message = f'Tube barcode wrong format. Expected: "NT<Number>". Got: {barcode}'
         super().__init__(default_message, *args, **kwargs)
 
 
 class PlateBarcodeBadFormat(BarcodeBadFormat):
     def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Plate barcode wrong format. Expected: "DN<Number>". Got: f{barcode}'
+        default_message = f'Plate barcode wrong format. Expected: "DN<Number>". Got: {barcode}'
         super().__init__(default_message, *args, **kwargs)
 
 

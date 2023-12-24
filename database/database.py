@@ -76,7 +76,7 @@ class DatabaseLayer:
 
     def list_samples_in(self, container_barcode: str) -> tp.Union[TubeReport, PlateReport]:
         """
-        :param container_barcode: str Tube: [NT<number>]  or Plate: [DN<number>]
+        :param container_barcode: str Tube: [NT<number>] or Plate: [DN<number>]
         :return: report for specified container
         """
 
@@ -90,12 +90,11 @@ class DatabaseLayer:
     def _get_tube_report(self, tube_barcode: str) -> TubeReport:
 
         fetched_sample = self.session.query(Sample).filter(Sample.tube_barcode == tube_barcode).first()
-        assert fetched_sample is not None
-        assert fetched_sample.customer_sample_name is not None
 
         if fetched_sample is None:
             raise TubeNotFound(tube_barcode=tube_barcode)
         else:
+            assert fetched_sample.customer_sample_name is not None
             return TubeReport(
                 tube_barcode=tube_barcode,
                 sample_id=fetched_sample.id,
