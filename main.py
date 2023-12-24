@@ -1,56 +1,20 @@
 # This is a sample Python script.
 import typing as tp
+import argparse
+import cmd2
+from sqlalchemy import Engine
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 
-from database import DatabaseLayer
+from database.database import DatabaseLayer
 from env import force_get_env_var
+from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived
 from init_db import EngineCreator, Base
 from dotenv import load_dotenv
 
 from reports import print_report
 
-
-def parse_args(args: tp.List[tp.Tuple[str, tp.Type]]) -> tp.Dict[str, tp.Any]:
-    result = {}
-    for (arg, _type) in args:
-        validated = False
-        while not validated:
-            user_input = input("Please provide " + arg + ": ")
-            try:
-                result[arg] = _type(user_input)
-                validated = True
-            except Exception as e:
-                print(str(e))
-    return result
-
-
-def read_commands(database_layer: DatabaseLayer) -> None:
-    user_input = input("Enter your command (type 'exit' to quit): ")
-
-    # Check if the user wants to exit
-    if user_input.lower() == 'exit':
-        print("Exiting the program.")
-        exit()
-    elif user_input.lower() == 'record_receipt':
-        kwargs = parse_args([("customer_sample_name", str), ("tube_barcode", str)])
-        sample = database_layer.record_receipt(**kwargs)
-        print("New sample id: " + str(sample.id))
-    elif user_input.lower() == 'add_to_plate':
-        kwargs = parse_args([("sample_id", int), ("plate_barcode", str), ("well_position", str)])
-        database_layer.add_to_plate(**kwargs)
-        print("Successful addition")
-    elif user_input.lower() == 'tube_transfer':
-        kwargs = parse_args([("source_tube_barcode", str), ("destination_tube_barcode", str)])
-        database_layer.tube_transfer(**kwargs)
-        print("Successful tube transfer")
-    elif user_input.lower() == 'list_samples_in':
-        kwargs = parse_args([("container_barcode", str)])
-        report = database_layer.list_samples_in(**kwargs)
-        print(print_report(report))
-    else:
-        print(f"Command {user_input} not found")
 
 
 def read_database_credentials_from_env(type: str) -> tp.Dict[str, tp.Any]:
@@ -75,24 +39,61 @@ def read_database_credentials_from_env(type: str) -> tp.Dict[str, tp.Any]:
     return credentials
 
 
-if __name__ == "__main__":
-    load_dotenv()
+class DatabaseInitializer:
 
-    # init_db
-    engine = EngineCreator.create_engine(**read_database_credentials_from_env("PROD"))
+    def initalize(self, recreate: bool = False) -> Engine:
+        load_dotenv()
+        database_arguments = read_database_credentials_from_env("PROD")
 
-    if not database_exists(engine.url):
-        create_database(engine.url)
-    Base.metadata.create_all(engine)
+        engine = EngineCreator.create_engine(**database_arguments)
+
+        if not database_exists(engine.url):
+            create_database(engine.url)
+        if recreate:
+            Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+
+        return engine
+
+
+class MyCLIApp(cmd2.Cmd):
+    """CLI tool for tracking samples."""
+
+    # Setting the prompt
+    prompt = "sanger-sample-tool> "
+
+    def __init__(self, database_layer: DatabaseLayer):
+        super().__init__()
+
+        self.database_layer = database_layer
+
+    name_parser = cmd2.Cmd2ArgumentParser()
+    name_parser.add_argument('customer_sample_name', help='Customer sample name')
+    name_parser.add_argument('tube_barcode', help='Tube barcode, format: NT<Number>')
+    # Command to simulate record_receipt
+
+    @cmd2.with_argparser(name_parser)
+    def do_record_receipt(self, args):
+        """Record a receipt: record_receipt [customer_sample_name] [tube_barcode]"""
+        try:
+            self.database_layer.record_receipt(args.customer_sample_name, args.tube_barcode)
+        except TubeBarcodeBadFormat:
+            print(f"Bad barcode: {args.tube_barcode}. Expected NT<Number>")
+            return
+        except SampleAlreadyReceived:
+            print(f"Sample in tube [{args.tube_barcode}] was already received.")
+            return
+
+        self.poutput(f"Successfully recorded receipt: {args.customer_sample_name} [{args.tube_barcode}]")
+
+
+if __name__ == '__main__':
+    engine = DatabaseInitializer().initalize()
 
     connection = engine.connect()
 
     Session = sessionmaker(bind=connection)
     session = Session()
-    database_layer = DatabaseLayer(session)
 
-    while True:
-        try:
-            read_commands(database_layer)
-        except Exception as e:
-            print(repr(e), str(e))
+    app = MyCLIApp(database_layer=DatabaseLayer(session))
+    app.cmdloop()
