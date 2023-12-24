@@ -1,6 +1,5 @@
 import pytest
 from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived
-from fixtures import database_connection, engine, database_layer, session
 
 
 class TestRecordReceipt:

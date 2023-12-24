@@ -1,6 +1,5 @@
 # This is a sample Python script.
 import typing as tp
-import argparse
 import cmd2
 from sqlalchemy import Engine
 
@@ -11,10 +10,10 @@ from database.database import DatabaseLayer
 from env import force_get_env_var
 from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived, SampleIdBadFormatting, PlateBarcodeBadFormat, \
     SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound
-from init_db import EngineCreator, Base
+from database.init_db import EngineCreator, Base
 from dotenv import load_dotenv
 
-from reports import print_report, WellPositionBadFormatting
+from reports import WellPositionBadFormatting
 
 
 def read_database_credentials_from_env(type: str) -> tp.Dict[str, tp.Any]:

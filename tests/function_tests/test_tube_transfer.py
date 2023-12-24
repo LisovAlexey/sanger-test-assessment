@@ -1,7 +1,5 @@
 import pytest
 from exceptions import TubeBarcodeBadFormat, OccupiedDestinationTube, TubeNotFound
-from tests.test_objects import sample_one, sample_two
-from tests.fixtures import database_layer, session, database_connection, engine
 
 
 class TestTubeTransfer:

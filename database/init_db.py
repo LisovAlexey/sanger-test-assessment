@@ -2,7 +2,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import Column, Integer, String, CheckConstraint, ForeignKey, create_engine, Engine
 
 import typing as tp
+
 Base = declarative_base()
+
 
 class Sample(Base):
     __tablename__ = 'samples'
@@ -39,7 +41,8 @@ class EngineCreator:
         pass
 
     @staticmethod
-    def create_engine(database: str, user: str, password: str, host: str, port: tp.Union[str, int], database_name: str) -> Engine:
+    def create_engine(database: str, user: str, password: str, host: str, port: tp.Union[str, int],
+                      database_name: str) -> Engine:
         return create_engine(
             f'{database}://{user}:{password}@{host}:{port}/{database_name}')
 
@@ -50,7 +53,7 @@ class EngineCreator:
             user="user",
             password="secret",
             host="localhost",
-            port = 5432,
+            port=5432,
             database_name="test_database"
         )
 

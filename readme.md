@@ -47,3 +47,7 @@ Also:
 Other assumptions that are not obvious from task description:
 - Tubes can be reused after moving sample from them (any sample can be put there)
 - tube_transfer could be performed to "not recorded" tube, (which was not receipt)
+
+
+
+# Setup project

@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.orm import sessionmaker
 
 from database.database import DatabaseLayer
-from init_db import EngineCreator, Base
+from database.init_db import EngineCreator, Base
 
 
 @pytest.fixture(scope="module")
@@ -37,3 +37,14 @@ def session(database_connection):
 @pytest.fixture(scope="function")
 def database_layer(session):
     yield DatabaseLayer(session)
+
+
+@pytest.fixture(scope="function")
+def sample_one(database_layer):
+    # The database_layer does not need to be rolled back because sessions are already rolled back
+    yield database_layer.record_receipt(customer_sample_name="test", tube_barcode="NT123")
+
+
+@pytest.fixture(scope="function")
+def sample_two(database_layer):
+    yield database_layer.record_receipt(customer_sample_name="test second sample", tube_barcode="NT333")

@@ -1,8 +1,6 @@
-import pytest
 from sqlalchemy_utils import database_exists, create_database  # type: ignore
 
-from database.database import DatabaseLayer
-from init_db import Base, EngineCreator, Sample
+from database.init_db import Base, EngineCreator
 
 
 class TestDatabase:

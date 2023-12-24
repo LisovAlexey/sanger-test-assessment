@@ -1,8 +1,7 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
-from tests.fixtures import session, database_connection, engine
 
-from init_db import Sample
+from database.init_db import Sample
 
 
 class TestSampleTable:
