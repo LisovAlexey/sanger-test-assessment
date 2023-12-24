@@ -11,7 +11,6 @@ class TestDatabase:
                                              port=5555, database_name="<DB_NAME>")
         # <PASSWORD> is hidden in engine.url method
         assert str(engine.url) == "postgresql://<USER>:***@<HOST>:5555/<DB_NAME>"
-        return engine
 
     def test_database_creation(self):
 

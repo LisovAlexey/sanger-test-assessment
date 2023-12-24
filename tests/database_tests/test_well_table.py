@@ -68,24 +68,28 @@ class TestWellTable:
 
         session.commit()
 
+    @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     def test_row_missing(self, session, sample_one):
         new_well = Well(plate_barcode="DN00001", col=1, sample_id=sample_one.id)
         session.add(new_well)
         with pytest.raises(IntegrityError):
             session.commit()
 
+    @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     def test_col_missing(self, session, sample_one):
         new_well = Well(plate_barcode="DN00001", row=1, sample_id=sample_one.id)
         session.add(new_well)
         with pytest.raises(IntegrityError):
             session.commit()
 
+    @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     def test_plate_barcode_missing(self, session, sample_one):
         new_well = Well(col=1, row=1, sample_id=sample_one.id)
         session.add(new_well)
         with pytest.raises(IntegrityError):
             session.commit()
 
+    @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     def test_sample_id_missing(self, session, sample_one):
         new_well = Well(plate_barcode="DN00001", row=1, col=1)
         session.add(new_well)

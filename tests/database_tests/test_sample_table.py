@@ -16,6 +16,7 @@ class TestSampleTable:
         assert new_sample_fetched.customer_sample_name == "test"
         assert new_sample_fetched.tube_barcode == "NT00001"
 
+    @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     def test_creating_sample_duplicate(self, session):
         new_sample = Sample(id=1, customer_sample_name="test", tube_barcode="NT00001")
         session.add(new_sample)

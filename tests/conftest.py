@@ -19,16 +19,9 @@ def engine():
     yield engine
 
 
-@pytest.fixture(scope="module")
-def database_connection(engine):
-    connection = engine.connect()
-    yield connection
-
-    connection.close()
-
-
 @pytest.fixture(scope="function")
-def session(database_connection):
+def session(engine):
+    database_connection = engine.connect()
     transaction = database_connection.begin()
 
     Session = sessionmaker(bind=database_connection)
@@ -37,7 +30,10 @@ def session(database_connection):
     yield session
 
     session.close()
-    transaction.rollback()
+    if database_connection.in_transaction():
+        transaction.rollback()
+
+    database_connection.close()
 
 
 @pytest.fixture(scope="function")
