@@ -1,0 +1,12 @@
+cmd2==2.4.3
+cmd2-ext-test==2.0.0
+gnureadline==8.1.2
+mypy==1.7.1
+mypy-extensions==1.0.0
+psycopg2-binary==2.9.9
+pytest==7.4.3
+python-dotenv==1.0.0
+SQLAlchemy==2.0.23
+sqlalchemy-stubs==0.4
+SQLAlchemy-Utils==0.41.1
+typing_extensions==4.9.0

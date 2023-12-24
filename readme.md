@@ -2,7 +2,7 @@
 
 ## Setup
 ```
-pip install psycopg2-binary, sqlalchemy, mypy, sqlalchemy-utils, sqlalchemy-stubs
+pip install -r requirements.txt
 ```
 
 ## 1. Modeling database scheme
@@ -51,3 +51,4 @@ Other assumptions that are not obvious from task description:
 
 
 # Setup project
+
