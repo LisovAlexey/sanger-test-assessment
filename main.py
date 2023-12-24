@@ -6,9 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from database.database import DatabaseLayer
 from database.management import DatabaseInitializer, DatabaseArgumentsLoader
 from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived, SampleIdBadFormatting, PlateBarcodeBadFormat, \
-    SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound
+    SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound, BarcodeBadFormat, OccupiedWellsNotFound
 
-from reports import WellPositionBadFormatting
+from reports import WellPositionBadFormatting, print_report
 
 
 class MyCLIApp(cmd2.Cmd):
@@ -34,10 +34,10 @@ class MyCLIApp(cmd2.Cmd):
         try:
             self.database_layer.record_receipt(args.customer_sample_name, args.tube_barcode)
         except TubeBarcodeBadFormat:
-            self.poutput(f"Bad barcode: {args.tube_barcode}. Expected NT<Number>")
+            self.perror(f"Bad barcode: {args.tube_barcode}. Expected NT<Number>")
             return
         except SampleAlreadyReceived:
-            self.poutput(f"Sample in tube [{args.tube_barcode}] was already received.")
+            self.perror(f"Sample in tube [{args.tube_barcode}] was already received.")
             return
 
         self.poutput(f"Successfully recorded receipt: {args.customer_sample_name} [{args.tube_barcode}]")
@@ -53,19 +53,20 @@ class MyCLIApp(cmd2.Cmd):
         try:
             self.database_layer.add_to_plate(args.sample_id, args.plate_barcode, args.well_position)
         except SampleIdBadFormatting:
-            self.poutput(f"Bad sample id: {args.sample_id}. Expected NT<PositiveNumber>")
+            self.perror(f"Bad sample id: {args.sample_id}. Expected NT<PositiveNumber>")
             return
         except PlateBarcodeBadFormat:
-            print(f'Plate barcode wrong format. Expected: "DN<Number>". Got: {args.plate_barcode}')
+            self.perror(f'Plate barcode wrong format. Expected: "DN<Number>". Got: {args.plate_barcode}')
             return
         except WellPositionBadFormatting:
-            print(f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: {args.well_position}')
+            self.perror(
+                f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: {args.well_position}')
             return
         except SampleNotFound:
-            print(f"Sample (id: {args.sample_id}) not found in table.")
+            self.perror(f"Sample (id: {args.sample_id}) not found in table.")
             return
         except WellPositionOccupied:
-            print(f"Well at position {args.well_position} already occupied.")
+            self.perror(f"Well at position {args.well_position} already occupied.")
             return
 
         self.poutput(
@@ -81,18 +82,39 @@ class MyCLIApp(cmd2.Cmd):
         try:
             self.database_layer.tube_transfer(args.source_tube_barcode, args.destination_tube_barcode)
         except TubeBarcodeBadFormat:
-            self.poutput(f"Bad tube barcode format: {args.source_tube_barcode} / {args.destination_tube_barcode}. "
-                         f"Should be: NT<Number>")
+            self.perror(f"Bad tube barcode format: {args.source_tube_barcode} / {args.destination_tube_barcode}. "
+                        f"Should be: NT<Number>")
             return
         except OccupiedDestinationTube:
-            self.poutput(f"Destination tube ({args.destination_tube_barcode}) is already occupied.")
+            self.perror(f"Destination tube ({args.destination_tube_barcode}) is already occupied.")
             return
         except TubeNotFound:
-            print(f'Source tube ({args.source_tube_barcode}) is empty.')
+            self.perror(f'Source tube ({args.source_tube_barcode}) is empty.')
             return
 
         self.poutput(f"Successfully transfer sample from tube ({args.source_tube_barcode}) "
                      f"to tube ({args.destination_tube_barcode})")
+
+    list_samples_in_parser = cmd2.Cmd2ArgumentParser()
+    list_samples_in_parser.add_argument('container_barcode', help='Tube or plate barcode. Format: '
+                                                                  'NT<Number> / DN<Number>')
+
+    @cmd2.with_argparser(list_samples_in_parser)
+    def do_list_samples_in(self, args):
+        """Print report for tube or plate: list_samples_in [container_barcode]"""
+        try:
+            report = self.database_layer.list_samples_in(args.container_barcode)
+        except TubeNotFound:
+            self.perror(f"Tube with barcode {args.container_barcode} not found.")
+            return
+        except OccupiedWellsNotFound:
+            self.perror(f"No occupied wells found for barcode {args.container_barcode}")
+            return
+        except BarcodeBadFormat:
+            self.perror(f'Barcode ({args.container_barcode}) has invalid format. Expected NT<Number> / DN<Number>')
+            return
+
+        self.poutput(print_report(report))
 
 
 if __name__ == '__main__':

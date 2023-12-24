@@ -34,8 +34,7 @@ class TestRecordReceiptCLIInterface:
         out = default_app.app_cmd("record_receipt 'Test sample' wrong_format")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == 'Bad barcode: wrong_format. Expected NT<Number>'
+        assert str(out.stderr).strip() == 'Bad barcode: wrong_format. Expected NT<Number>'
 
     def test_record_receipt_duplicate(self, default_app):
         out = default_app.app_cmd("record_receipt 'Test sample' NT100")
@@ -43,8 +42,7 @@ class TestRecordReceiptCLIInterface:
         out = default_app.app_cmd("record_receipt 'Test sample the same' NT100")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f'Sample in tube [NT100] was already received.'
+        assert str(out.stderr).strip() == f'Sample in tube [NT100] was already received.'
 
 
 class TestAddToPlateCLIInterface:
@@ -64,8 +62,7 @@ class TestAddToPlateCLIInterface:
         out = default_app.app_cmd(f"add_to_plate {-2} DN100 A1")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f"Bad sample id: -2. Expected NT<PositiveNumber>"
+        assert str(out.stderr).strip() == f"Bad sample id: -2. Expected NT<PositiveNumber>"
 
     def test_add_to_plate_well_position_bad_format(self, default_app):
         sample = default_app.database_layer.record_receipt("Test sample", "NT1")
@@ -73,9 +70,8 @@ class TestAddToPlateCLIInterface:
         out = default_app.app_cmd(f"add_to_plate {sample.id} DN100 some_well")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(
-            out.stdout).strip() == f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: some_well'
+        assert str(out.stderr).strip() == (f'Well position wrong format. '
+                                           f'Expected: "<Letter [A-H]><Number [1-12]>". Got: some_well')
 
     def test_add_to_plate_no_such_sample(self, default_app):
         sample = default_app.database_layer.record_receipt("Test sample", "NT1")
@@ -86,8 +82,7 @@ class TestAddToPlateCLIInterface:
         out = default_app.app_cmd(f"add_to_plate {missing_sample_id} DN100 A1")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f"Sample (id: {missing_sample_id}) not found in table."
+        assert str(out.stderr).strip() == f"Sample (id: {missing_sample_id}) not found in table."
 
     def test_add_to_plate_well_position_occupied(self, default_app):
         sample = default_app.database_layer.record_receipt("Test sample", "NT1")
@@ -96,8 +91,7 @@ class TestAddToPlateCLIInterface:
         out = default_app.app_cmd(f"add_to_plate {sample.id} DN100 A1")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f"Well at position A1 already occupied."
+        assert str(out.stderr).strip() == f"Well at position A1 already occupied."
 
 
 class TestTubeTransferCLIInterface:
@@ -116,8 +110,7 @@ class TestTubeTransferCLIInterface:
         out = default_app.app_cmd(f"tube_transfer some_barcode1 some_barcode2")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f"Bad tube barcode format: some_barcode1 / some_barcode2. " + \
+        assert str(out.stderr).strip() == f"Bad tube barcode format: some_barcode1 / some_barcode2. " + \
                f"Should be: NT<Number>"
 
     def test_tube_transfer_destination_tube_occupied(self, default_app):
@@ -127,12 +120,44 @@ class TestTubeTransferCLIInterface:
         out = default_app.app_cmd(f"tube_transfer NT1 NT2")
 
         assert isinstance(out, CommandResult)
-        assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f"Destination tube (NT2) is already occupied."
+        assert str(out.stderr).strip() == f"Destination tube (NT2) is already occupied."
 
     def test_tube_transfer_source_tube_empty(self, default_app):
         out = default_app.app_cmd(f"tube_transfer NT1 NT2")
 
         assert isinstance(out, CommandResult)
+        assert str(out.stderr).strip() == f'Source tube (NT1) is empty.'
+
+
+class TestListSamplesInCLIInterface:
+
+    def test_list_samples_in(self, default_app):
+        _ = default_app.database_layer.record_receipt("Test sample", "NT1")
+
+        out = default_app.app_cmd(f"list_samples_in NT1")
+
+        assert isinstance(out, CommandResult)
         assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == f'Source tube (NT1) is empty.'
+
+    def test_list_samples_in_missing_tube(self, default_app):
+        _ = default_app.database_layer.record_receipt("Test sample", "NT1")
+
+        out = default_app.app_cmd(f"list_samples_in NT2")
+
+        assert isinstance(out, CommandResult)
+        assert str(out.stderr).strip() == "Tube with barcode NT2 not found."
+
+    def test_list_samples_in_missing_plate(self, default_app):
+
+        out = default_app.app_cmd(f"list_samples_in DN226")
+
+        assert isinstance(out, CommandResult)
+        assert str(out.stderr).strip() == "No occupied wells found for barcode DN226"
+
+    def test_list_samples_in_bad_barcode_format(self, default_app):
+
+        out = default_app.app_cmd(f"list_samples_in some_barcode")
+
+        assert isinstance(out, CommandResult)
+        assert str(out.stderr).strip() == 'Barcode (some_barcode) has invalid format. Expected NT<Number> / DN<Number>'
+
