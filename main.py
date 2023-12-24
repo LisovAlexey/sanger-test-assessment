@@ -1,58 +1,14 @@
 # This is a sample Python script.
-import typing as tp
 import cmd2
-from sqlalchemy import Engine
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
 
 from database.database import DatabaseLayer
-from env import force_get_env_var
+from database.management import DatabaseInitializer, DatabaseArgumentsLoader
 from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived, SampleIdBadFormatting, PlateBarcodeBadFormat, \
     SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound
-from database.init_db import EngineCreator, Base
-from dotenv import load_dotenv
 
 from reports import WellPositionBadFormatting
-
-
-def read_database_credentials_from_env(type: str) -> tp.Dict[str, tp.Any]:
-    """
-    Read database credentials from environment variables
-    :param type: PROD or TEST
-    :return: credentials in format for passing into create_engine function
-    """
-    credentials = {
-        "user": force_get_env_var(f"{type}_DATABASE_USER"),
-        "password": force_get_env_var(f"{type}_DATABASE_PASSWORD"),
-        "host": force_get_env_var(f"{type}_DATABASE_HOST"),
-        "port": force_get_env_var(f"{type}_DATABASE_PORT"),
-        "database_name": force_get_env_var(f"{type}_DATABASE_NAME")
-    }
-
-    PROD_DATABASE_TYPE = force_get_env_var(f"{type}_DATABASE_TYPE")
-
-    if PROD_DATABASE_TYPE.lower() == "postgresql":
-        credentials["database"] = "postgresql+psycopg2"
-
-    return credentials
-
-
-class DatabaseInitializer:
-
-    def initalize(self, recreate: bool = False) -> Engine:
-        load_dotenv()
-        database_arguments = read_database_credentials_from_env("PROD")
-
-        engine = EngineCreator.create_engine(**database_arguments)
-
-        if not database_exists(engine.url):
-            create_database(engine.url)
-        if recreate:
-            Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-        return engine
 
 
 class MyCLIApp(cmd2.Cmd):
@@ -69,6 +25,7 @@ class MyCLIApp(cmd2.Cmd):
     record_receipt_parser = cmd2.Cmd2ArgumentParser()
     record_receipt_parser.add_argument('customer_sample_name', help='Customer sample name')
     record_receipt_parser.add_argument('tube_barcode', help='Tube barcode, format: NT<Number>')
+
     # Command to simulate record_receipt
 
     @cmd2.with_argparser(record_receipt_parser)
@@ -111,7 +68,8 @@ class MyCLIApp(cmd2.Cmd):
             print(f"Well at position {args.well_position} already occupied.")
             return
 
-        self.poutput(f"Successfully added sample (id: {args.sample_id}) to plate {args.plate_barcode} at {args.well_position}")
+        self.poutput(
+            f"Successfully added sample (id: {args.sample_id}) to plate {args.plate_barcode} at {args.well_position}")
 
     tube_transfer_parser = cmd2.Cmd2ArgumentParser()
     tube_transfer_parser.add_argument('source_tube_barcode', help='Source tube barcode. Format: NT<Number>')
@@ -138,7 +96,8 @@ class MyCLIApp(cmd2.Cmd):
 
 
 if __name__ == '__main__':
-    engine = DatabaseInitializer().initalize()
+    database_arguments = DatabaseArgumentsLoader.load_database_arguments("PROD")
+    engine = DatabaseInitializer().initalize(database_arguments, recreate=False)
 
     connection = engine.connect()
 

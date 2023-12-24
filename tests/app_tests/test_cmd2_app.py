@@ -3,7 +3,8 @@ import pytest
 from sqlalchemy.orm import sessionmaker
 
 from database.database import DatabaseLayer
-from main import MyCLIApp, DatabaseInitializer
+from database.management import DatabaseInitializer
+from main import MyCLIApp
 from cmd2 import CommandResult
 
 

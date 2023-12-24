@@ -1,6 +1,7 @@
 from sqlalchemy_utils import database_exists, create_database  # type: ignore
 
-from database.init_db import Base, EngineCreator
+from database.management import EngineCreator
+from database.scheme import Base
 
 
 class TestDatabase:
@@ -13,6 +14,7 @@ class TestDatabase:
         return engine
 
     def test_database_creation(self):
+
         engine = EngineCreator.create_test_database()
         if not database_exists(engine.url):
             create_database(engine.url)

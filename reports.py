@@ -1,7 +1,7 @@
 import typing as tp
 
 from format_validator import well_position_validator
-from database.init_db import Well, Sample
+from database.scheme import Sample, Well
 
 
 class WellPositionBadFormatting(Exception):

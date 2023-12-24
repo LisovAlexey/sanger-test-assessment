@@ -1,13 +1,19 @@
 import pytest
+from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
 
 from database.database import DatabaseLayer
-from database.init_db import EngineCreator, Base
+from database.management import DatabaseInitializer
+from database.scheme import Base
+from env import read_database_credentials_from_env
 
 
 @pytest.fixture(scope="module")
 def engine():
-    engine = EngineCreator.create_test_database()
+    load_dotenv()
+    database_arguments = read_database_credentials_from_env("TEST")
+
+    engine = DatabaseInitializer().initalize(database_arguments, recreate=False)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     yield engine

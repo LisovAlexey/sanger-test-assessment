@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from exceptions import BarcodeBadFormat, TubeBarcodeBadFormat, PlateBarcodeBadFormat, OccupiedDestinationTube, \
     SampleNotFound, SampleIdBadFormatting, TubeNotFound, OccupiedWellsNotFound, SampleAlreadyReceived, \
     WellPositionOccupied
-from database.init_db import Well, Sample
+from database.scheme import Sample, Well
 from reports import TubeReport, PlateReport, WellPositionBadFormatting, WellPositionFormatAdapter
 
 from format_validator import tube_barcode_validator, plate_barcode_validator, well_position_validator
@@ -145,3 +145,5 @@ class DatabaseLayer:
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
+
+
