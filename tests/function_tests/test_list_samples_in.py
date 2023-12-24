@@ -1,7 +1,7 @@
 import pytest
 
-from database import TubeReport, PlateReport, \
-    TubeNotFound, OccupiedWellsNotFound, BarcodeBadFormat
+from database.database import TubeReport, PlateReport
+from exceptions import BarcodeBadFormat, TubeNotFound, OccupiedWellsNotFound
 from tests.fixtures import database_layer, session, engine, database_connection
 from tests.test_objects import sample_one, sample_two
 

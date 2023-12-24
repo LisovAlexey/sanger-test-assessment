@@ -2,7 +2,7 @@ import pytest
 
 from tests.fixtures import database_layer, session, database_connection, engine
 
-from database import SampleIdBadFormatting, SampleNotFound, WellPositionOccupied, PlateBarcodeBadFormat
+from exceptions import PlateBarcodeBadFormat, SampleNotFound, SampleIdBadFormatting, WellPositionOccupied
 from reports import WellPositionBadFormatting
 from tests.test_objects import sample_one, sample_two
 

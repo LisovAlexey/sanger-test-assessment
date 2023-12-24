@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.orm import sessionmaker
 
-from database import DatabaseLayer
+from database.database import DatabaseLayer
 from init_db import EngineCreator, Base
 
 

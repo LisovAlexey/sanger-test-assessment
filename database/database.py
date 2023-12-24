@@ -1,78 +1,21 @@
 import typing as tp
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
+from exceptions import BarcodeBadFormat, TubeBarcodeBadFormat, PlateBarcodeBadFormat, OccupiedDestinationTube, \
+    SampleNotFound, SampleIdBadFormatting, TubeNotFound, OccupiedWellsNotFound, SampleAlreadyReceived, \
+    WellPositionOccupied
 from init_db import Well, Sample
 from reports import TubeReport, PlateReport, WellPositionBadFormatting, WellPositionFormatAdapter
 
 from format_validator import tube_barcode_validator, plate_barcode_validator, well_position_validator
 
 
-class TubeBarcodeBadFormat(Exception):
-    def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Tube barcode wrong format. Expected: "NT<Number>". Got: f{barcode}'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class PlateBarcodeBadFormat(Exception):
-    def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Plate barcode wrong format. Expected: "DN<Number>". Got: f{barcode}'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class BarcodeBadFormat(Exception):
-    def __init__(self, barcode: str, *args, **kwargs):
-        default_message = f'Bad barcode format. Expected: "DN<Number>" for plate or "NT<Number>" for tube. Got: f{barcode}'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class OccupiedDestinationTube(Exception):
-    def __init__(self, tube_barcode: str, *args, **kwargs):
-        default_message = f'Tube with barcode {tube_barcode} already occupied.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class SampleNotFound(Exception):
-    def __init__(self, sample_id: int, *args, **kwargs):
-        default_message = f'sample_id {sample_id} not found in table.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class SampleIdBadFormatting(Exception):
-    def __init__(self, sample_id: int, *args, **kwargs):
-        default_message = f'sample_id {sample_id} bad format. Expected positive number.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class TubeNotFound(Exception):
-    def __init__(self, tube_barcode: str, *args, **kwargs):
-        default_message = f'Tube with {tube_barcode} not found.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class OccupiedWellsNotFound(Exception):
-    def __init__(self, plate_barcode: str, *args, **kwargs):
-        default_message = f'Occupied wells not found for {plate_barcode}.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class SampleAlreadyReceived(Exception):
-    # Duplicate barcodes
-    def __init__(self, tube_barcode: str, *args, **kwargs):
-        default_message = f'Sample already received for {tube_barcode}.'
-        super().__init__(default_message, *args, **kwargs)
-
-
-class WellPositionOccupied(Exception):
-    def __init__(self, well_position: str, plate_barcode: str, *args, **kwargs):
-        default_message = f'Position {well_position} already occupied in plate {plate_barcode}.'
-        super().__init__(default_message, *args, **kwargs)
-
-
 class DatabaseLayer:
     # Store db connection and give users point to connect
 
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
 
     def record_receipt(self, customer_sample_name: str, tube_barcode: str) -> Sample:
@@ -147,6 +90,9 @@ class DatabaseLayer:
     def _get_tube_report(self, tube_barcode: str) -> TubeReport:
 
         fetched_sample = self.session.query(Sample).filter(Sample.tube_barcode == tube_barcode).first()
+        assert fetched_sample is not None
+        assert fetched_sample.customer_sample_name is not None
+
         if fetched_sample is None:
             raise TubeNotFound(tube_barcode=tube_barcode)
         else:
@@ -159,10 +105,10 @@ class DatabaseLayer:
     def _get_plate_report(self, plate_barcode: str) -> PlateReport:
         fetched_wells_and_samples = (
             self.session.query(Well, Sample)
-                .join(Well, Sample.id == Well.sample_id)
-                .filter(Well.plate_barcode == plate_barcode)
-                .all()
-            )
+            .join(Well, Sample.id == Well.sample_id)
+            .filter(Well.plate_barcode == plate_barcode)
+            .all()
+        )
         if not fetched_wells_and_samples:
             raise OccupiedWellsNotFound(plate_barcode=plate_barcode)
         else:

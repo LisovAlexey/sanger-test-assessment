@@ -1,6 +1,5 @@
 import pytest
-from database import OccupiedDestinationTube, TubeNotFound, TubeBarcodeBadFormat
-from fixtures import engine, database_connection, database_layer, session
+from exceptions import TubeBarcodeBadFormat, OccupiedDestinationTube, TubeNotFound
 from tests.test_objects import sample_one, sample_two
 
 
