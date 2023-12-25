@@ -2,8 +2,34 @@
 
 ## Setup
 ```
+
+python3 -m venv .venv
+source .venv/bin/activate 
 pip install -r requirements.txt
 ```
+
+Database setup (postgres):
+```
+docker-compose up -d
+```
+
+Running tests:
+```
+python -m pytest tests
+```
+Running main app:
+```
+python main.py
+```
+
+App supports 4 commands (and default commands provided by cmd2):
+```
+record_receipt        Record a receipt: record_receipt [customer_sample_name] [tube_barcode] 
+add_to_plate          Add sample to plate: add_to_plate [sample_id] [plate_barcode] [well_position] 
+tube_transfer         Transfer sample from one tube to another: tube_transfer [source_tube_barcode] [destination_tube_barcode] 
+list_samples_in       Print report for tube or plate: list_samples_in [container_barcode] 
+```
+
 
 ## 1. Modeling database scheme
 
@@ -47,8 +73,4 @@ Also:
 Other assumptions that are not obvious from task description:
 - Tubes can be reused after moving sample from them (any sample can be put there)
 - tube_transfer could be performed to "not recorded" tube, (which was not receipt)
-
-
-
-# Setup project
 
