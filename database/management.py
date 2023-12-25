@@ -10,8 +10,6 @@ from env import read_database_credentials_from_env
 
 
 class EngineCreator:
-    def __init__(self):
-        pass
 
     @staticmethod
     def create_engine(database: str, user: str, password: str, host: str, port: tp.Union[str, int],
@@ -21,14 +19,8 @@ class EngineCreator:
 
     @staticmethod
     def create_test_database() -> Engine:
-        return EngineCreator.create_engine(
-            database="postgresql+psycopg2",
-            user="user",
-            password="secret",
-            host="localhost",
-            port=5432,
-            database_name="test_database"
-        )
+        test_database_arguments = DatabaseArgumentsLoader.load_database_arguments("TEST")
+        return EngineCreator.create_engine(**test_database_arguments)
 
 
 class DatabaseInitializer:
