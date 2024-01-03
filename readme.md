@@ -2,7 +2,6 @@
 
 ## Setup
 ```
-
 python3 -m venv .venv
 source .venv/bin/activate 
 pip install -r requirements.txt
@@ -31,7 +30,7 @@ list_samples_in       Print report for tube or plate: list_samples_in [container
 ```
 
 
-## 1. Modeling database scheme
+## Modeling database scheme
 
 ### Samples table
 - A sample will have one sample_id allocated by Sanger which is a non-zero positive integer.
