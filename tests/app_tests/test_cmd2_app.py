@@ -28,7 +28,7 @@ class TestRecordReceiptCLIInterface:
 
         assert isinstance(out, CommandResult)
         assert str(out.stderr) == ""
-        assert str(out.stdout).strip() == 'Successfully recorded receipt: Test sample [NT100]'
+        assert str(out.stdout).strip().startswith('Successfully recorded receipt: Test sample [NT100] -> Sample ID: ')
 
     def test_record_receipt_bad_barcode_format(self, default_app):
         out = default_app.app_cmd("record_receipt 'Test sample' wrong_format")

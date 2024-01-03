@@ -36,7 +36,7 @@ class MyCLIApp(cmd2.Cmd):
     def do_record_receipt(self, args: argparse.Namespace) -> None:
         """Record a receipt: record_receipt [customer_sample_name] [tube_barcode]"""
         try:
-            self.database_layer.record_receipt(args.customer_sample_name, args.tube_barcode)
+            sample = self.database_layer.record_receipt(args.customer_sample_name, args.tube_barcode)
         except TubeBarcodeBadFormat:
             self.perror(f"Bad barcode: {args.tube_barcode}. Expected NT<Number>")
             return
@@ -44,7 +44,8 @@ class MyCLIApp(cmd2.Cmd):
             self.perror(f"Sample in tube [{args.tube_barcode}] was already received.")
             return
 
-        self.poutput(f"Successfully recorded receipt: {args.customer_sample_name} [{args.tube_barcode}]")
+        self.poutput(f"Successfully recorded receipt: Test sample [NT100] -> "
+                     f"Sample ID: {sample.id}")
 
     add_to_plate_parser = cmd2.Cmd2ArgumentParser()
     add_to_plate_parser.add_argument('sample_id', help='Sample name', type=int)
