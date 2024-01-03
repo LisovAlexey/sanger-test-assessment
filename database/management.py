@@ -25,7 +25,7 @@ class DatabaseInitializer:
     def __init__(self, Base: tp.Type[Base]):
         self.Base = Base
 
-    def initialize(self, database_arguments: tp.Dict[str, tp.Any], recreate: bool = False) -> Engine:
+    def init_database(self, database_arguments: tp.Dict[str, tp.Any], recreate: bool = False) -> Engine:
 
         engine = CreateEngineAdapter.create_engine(**database_arguments)
 

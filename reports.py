@@ -1,6 +1,6 @@
 import typing as tp
 
-from exceptions import WellPositionBadFormatting
+from exceptions import WellPositionBadFormatting, UnknownReportType
 from format_validator import well_position_validator
 from database.scheme import Sample, Well
 
@@ -59,10 +59,6 @@ class TubeReportFormatter:
         Sample ID: {tube_report.sample_id}
         Customer Sample Name: {tube_report.customer_sample_name}
         """
-
-
-class UnknownReportType(Exception):
-    pass
 
 
 def print_report(report: tp.Union[PlateReport, TubeReport]) -> str:

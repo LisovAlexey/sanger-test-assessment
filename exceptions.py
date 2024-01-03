@@ -76,3 +76,7 @@ class WellPositionBadFormatting(Exception):
         default_message = (f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". '
                            f'Got: f{well_position}')
         super().__init__(default_message, *args, **kwargs)
+
+
+class UnknownReportType(Exception):
+    pass

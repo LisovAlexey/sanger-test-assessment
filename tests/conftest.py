@@ -15,7 +15,7 @@ def engine() -> tp.Generator[Engine, None, None]:
     load_dotenv()
     database_arguments = read_database_credentials_from_env("TEST")
 
-    engine = DatabaseInitializer(Base=Base).initialize(database_arguments, recreate=False)
+    engine = DatabaseInitializer(Base=Base).init_database(database_arguments, recreate=False)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     yield engine

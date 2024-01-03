@@ -1,4 +1,6 @@
 # This is a sample Python script.
+import argparse
+
 import cmd2
 
 from sqlalchemy.orm import sessionmaker
@@ -31,7 +33,7 @@ class MyCLIApp(cmd2.Cmd):
     # Command to simulate record_receipt
 
     @cmd2.with_argparser(record_receipt_parser)  # type: ignore
-    def do_record_receipt(self, args):
+    def do_record_receipt(self, args: argparse.Namespace) -> None:
         """Record a receipt: record_receipt [customer_sample_name] [tube_barcode]"""
         try:
             self.database_layer.record_receipt(args.customer_sample_name, args.tube_barcode)
@@ -50,7 +52,7 @@ class MyCLIApp(cmd2.Cmd):
     add_to_plate_parser.add_argument('well_position', help='Well position, format: <Row><Col>: A1, B8')
 
     @cmd2.with_argparser(add_to_plate_parser)  # type: ignore
-    def do_add_to_plate(self, args):
+    def do_add_to_plate(self, args: argparse.Namespace) -> None:
         """Add sample to plate: add_to_plate [sample_id] [plate_barcode] [well_position]"""
         try:
             self.database_layer.add_to_plate(args.sample_id, args.plate_barcode, args.well_position)
@@ -79,7 +81,7 @@ class MyCLIApp(cmd2.Cmd):
     tube_transfer_parser.add_argument('destination_tube_barcode', help='Destination tube barcode. Format: NT<Number>')
 
     @cmd2.with_argparser(tube_transfer_parser)  # type: ignore
-    def do_tube_transfer(self, args):
+    def do_tube_transfer(self, args: argparse.Namespace) -> None:
         """Transfer sample from one tube to another: tube_transfer [source_tube_barcode] [destination_tube_barcode]"""
         try:
             self.database_layer.tube_transfer(args.source_tube_barcode, args.destination_tube_barcode)
@@ -102,7 +104,7 @@ class MyCLIApp(cmd2.Cmd):
                                                                   'NT<Number> / DN<Number>')
 
     @cmd2.with_argparser(list_samples_in_parser)  # type: ignore
-    def do_list_samples_in(self, args):
+    def do_list_samples_in(self, args: argparse.Namespace) -> None:
         """Print report for tube or plate: list_samples_in [container_barcode]"""
         try:
             report = self.database_layer.list_samples_in(args.container_barcode)
@@ -121,7 +123,7 @@ class MyCLIApp(cmd2.Cmd):
 
 if __name__ == '__main__':
     database_arguments = DatabaseArgumentsLoader.load_database_arguments("PROD")
-    engine = DatabaseInitializer(Base=Base).initialize(database_arguments, recreate=False)
+    engine = DatabaseInitializer(Base=Base).init_database(database_arguments, recreate=False)
 
     connection = engine.connect()
 
