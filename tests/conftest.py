@@ -13,7 +13,7 @@ def engine():
     load_dotenv()
     database_arguments = read_database_credentials_from_env("TEST")
 
-    engine = DatabaseInitializer().initalize(database_arguments, recreate=False)
+    engine = DatabaseInitializer(Base=Base).initialize(database_arguments, recreate=False)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     yield engine

@@ -1,15 +1,16 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Engine
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import typing as tp
 
 from sqlalchemy_utils import database_exists, create_database
-
 from database.scheme import Base
+
 from env import read_database_credentials_from_env
 
 
-class EngineCreator:
+class CreateEngineAdapter:
 
     @staticmethod
     def create_engine(database: str, user: str, password: str, host: str, port: tp.Union[str, int],
@@ -17,23 +18,22 @@ class EngineCreator:
         return create_engine(
             f'{database}://{user}:{password}@{host}:{port}/{database_name}')
 
-    @staticmethod
-    def create_test_database() -> Engine:
-        test_database_arguments = DatabaseArgumentsLoader.load_database_arguments("TEST")
-        return EngineCreator.create_engine(**test_database_arguments)
-
 
 class DatabaseInitializer:
+    """Initialize the database and create all the tables"""
 
-    def initalize(self, database_arguments: tp.Dict, recreate: bool = False) -> Engine:
+    def __init__(self, Base: tp.Type[Base]):
+        self.Base = Base
 
-        engine = EngineCreator.create_engine(**database_arguments)
+    def initialize(self, database_arguments: tp.Dict, recreate: bool = False) -> Engine:
+
+        engine = CreateEngineAdapter.create_engine(**database_arguments)
 
         if not database_exists(engine.url):
             create_database(engine.url)
         if recreate:
-            Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+            self.Base.metadata.drop_all(engine)
+        self.Base.metadata.create_all(engine)
 
         return engine
 
@@ -42,6 +42,6 @@ class DatabaseArgumentsLoader:
     """Load arguments from various sources"""
 
     @staticmethod
-    def load_database_arguments(database_type: str):
+    def load_database_arguments(database_type: tp.Literal['TEST', 'PROD']):
         load_dotenv()
         return read_database_credentials_from_env(database_type)

@@ -9,6 +9,7 @@ from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived, SampleIdBadF
     SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound, BarcodeBadFormat, OccupiedWellsNotFound
 
 from reports import WellPositionBadFormatting, print_report
+from database.scheme import Base
 
 
 class MyCLIApp(cmd2.Cmd):
@@ -119,7 +120,7 @@ class MyCLIApp(cmd2.Cmd):
 
 if __name__ == '__main__':
     database_arguments = DatabaseArgumentsLoader.load_database_arguments("PROD")
-    engine = DatabaseInitializer().initalize(database_arguments, recreate=False)
+    engine = DatabaseInitializer(Base=Base).initialize(database_arguments, recreate=False)
 
     connection = engine.connect()
 
