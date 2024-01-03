@@ -6,9 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from database.database import DatabaseLayer
 from database.management import DatabaseInitializer, DatabaseArgumentsLoader
 from exceptions import TubeBarcodeBadFormat, SampleAlreadyReceived, SampleIdBadFormatting, PlateBarcodeBadFormat, \
-    SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound, BarcodeBadFormat, OccupiedWellsNotFound
+    SampleNotFound, WellPositionOccupied, OccupiedDestinationTube, TubeNotFound, BarcodeBadFormat, \
+    OccupiedWellsNotFound, WellPositionBadFormatting
 
-from reports import WellPositionBadFormatting, print_report
+from reports import print_report
 from database.scheme import Base
 
 
@@ -29,7 +30,7 @@ class MyCLIApp(cmd2.Cmd):
 
     # Command to simulate record_receipt
 
-    @cmd2.with_argparser(record_receipt_parser)
+    @cmd2.with_argparser(record_receipt_parser)  # type: ignore
     def do_record_receipt(self, args):
         """Record a receipt: record_receipt [customer_sample_name] [tube_barcode]"""
         try:
@@ -48,7 +49,7 @@ class MyCLIApp(cmd2.Cmd):
     add_to_plate_parser.add_argument('plate_barcode', help='Plate barcode, format: DN<Number>')
     add_to_plate_parser.add_argument('well_position', help='Well position, format: <Row><Col>: A1, B8')
 
-    @cmd2.with_argparser(add_to_plate_parser)
+    @cmd2.with_argparser(add_to_plate_parser)  # type: ignore
     def do_add_to_plate(self, args):
         """Add sample to plate: add_to_plate [sample_id] [plate_barcode] [well_position]"""
         try:
@@ -77,7 +78,7 @@ class MyCLIApp(cmd2.Cmd):
     tube_transfer_parser.add_argument('source_tube_barcode', help='Source tube barcode. Format: NT<Number>')
     tube_transfer_parser.add_argument('destination_tube_barcode', help='Destination tube barcode. Format: NT<Number>')
 
-    @cmd2.with_argparser(tube_transfer_parser)
+    @cmd2.with_argparser(tube_transfer_parser)  # type: ignore
     def do_tube_transfer(self, args):
         """Transfer sample from one tube to another: tube_transfer [source_tube_barcode] [destination_tube_barcode]"""
         try:
@@ -100,7 +101,7 @@ class MyCLIApp(cmd2.Cmd):
     list_samples_in_parser.add_argument('container_barcode', help='Tube or plate barcode. Format: '
                                                                   'NT<Number> / DN<Number>')
 
-    @cmd2.with_argparser(list_samples_in_parser)
+    @cmd2.with_argparser(list_samples_in_parser)  # type: ignore
     def do_list_samples_in(self, args):
         """Print report for tube or plate: list_samples_in [container_barcode]"""
         try:

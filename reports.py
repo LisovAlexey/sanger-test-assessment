@@ -1,13 +1,8 @@
 import typing as tp
 
+from exceptions import WellPositionBadFormatting
 from format_validator import well_position_validator
 from database.scheme import Sample, Well
-
-
-class WellPositionBadFormatting(Exception):
-    def __init__(self, well_position: str, *args, **kwargs):
-        default_message = f'Well position wrong format. Expected: "<Letter [A-H]><Number [1-12]>". Got: f{well_position}'
-        super().__init__(default_message, *args, **kwargs)
 
 
 class WellPositionFormatAdapter:

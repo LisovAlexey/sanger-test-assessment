@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import typing as tp
 
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import database_exists, create_database # type: ignore
 from database.scheme import Base
 
 from env import read_database_credentials_from_env
@@ -25,7 +25,7 @@ class DatabaseInitializer:
     def __init__(self, Base: tp.Type[Base]):
         self.Base = Base
 
-    def initialize(self, database_arguments: tp.Dict, recreate: bool = False) -> Engine:
+    def initialize(self, database_arguments: tp.Dict[str, tp.Any], recreate: bool = False) -> Engine:
 
         engine = CreateEngineAdapter.create_engine(**database_arguments)
 
@@ -42,6 +42,6 @@ class DatabaseArgumentsLoader:
     """Load arguments from various sources"""
 
     @staticmethod
-    def load_database_arguments(database_type: tp.Literal['TEST', 'PROD']):
+    def load_database_arguments(database_type: tp.Literal['TEST', 'PROD']) -> tp.Dict[str, tp.Any]:
         load_dotenv()
         return read_database_credentials_from_env(database_type)

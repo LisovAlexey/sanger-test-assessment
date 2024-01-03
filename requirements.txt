@@ -6,7 +6,6 @@ mypy-extensions==1.0.0
 psycopg2-binary==2.9.9
 pytest==7.4.3
 python-dotenv==1.0.0
-SQLAlchemy==2.0.23
-sqlalchemy-stubs==0.4
+SQLAlchemy[mypy]==2.0.23
 SQLAlchemy-Utils==0.41.1
 typing_extensions==4.9.0

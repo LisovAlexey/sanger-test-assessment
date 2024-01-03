@@ -1,7 +1,7 @@
 import pytest
 
-from exceptions import PlateBarcodeBadFormat, SampleNotFound, SampleIdBadFormatting, WellPositionOccupied
-from reports import WellPositionBadFormatting
+from exceptions import PlateBarcodeBadFormat, SampleNotFound, SampleIdBadFormatting, WellPositionOccupied, \
+    WellPositionBadFormatting
 
 
 class TestAddToPlate:

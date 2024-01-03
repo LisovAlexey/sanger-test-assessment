@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from exceptions import BarcodeBadFormat, TubeBarcodeBadFormat, PlateBarcodeBadFormat, OccupiedDestinationTube, \
     SampleNotFound, SampleIdBadFormatting, TubeNotFound, OccupiedWellsNotFound, SampleAlreadyReceived, \
-    WellPositionOccupied
+    WellPositionOccupied, WellPositionBadFormatting
 from database.scheme import Sample, Well
-from reports import TubeReport, PlateReport, WellPositionBadFormatting, WellPositionFormatAdapter
+from reports import TubeReport, PlateReport, WellPositionFormatAdapter
 
 from format_validator import tube_barcode_validator, plate_barcode_validator, well_position_validator
 
@@ -104,16 +104,20 @@ class DatabaseLayer:
     def _get_plate_report(self, plate_barcode: str) -> PlateReport:
         fetched_wells_and_samples = (
             self.session.query(Well, Sample)
-            .join(Well, Sample.id == Well.sample_id)
-            .filter(Well.plate_barcode == plate_barcode)
-            .all()
+                .join(Well, Sample.id == Well.sample_id)
+                .filter(Well.plate_barcode == plate_barcode)
+                .all()
         )
+
+        # Convert to list[tuple(Well, Sample)]
+        fetched_wells_and_samples_converted = [(well, sample) for (well, sample) in fetched_wells_and_samples]
+
         if not fetched_wells_and_samples:
             raise OccupiedWellsNotFound(plate_barcode=plate_barcode)
         else:
             return PlateReport(
                 plate_barcode=plate_barcode,
-                wells_and_samples=fetched_wells_and_samples
+                wells_and_samples=fetched_wells_and_samples_converted
             )
 
     def tube_transfer(self, source_tube_barcode: str, destination_tube_barcode: str) -> None:

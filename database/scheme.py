@@ -1,5 +1,5 @@
 from sqlalchemy import CheckConstraint, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -12,9 +12,9 @@ class Sample(Base):
         CheckConstraint('id > 0'),
     )
 
-    id = Column(Integer, primary_key=True)
-    customer_sample_name = Column(String)
-    tube_barcode = Column(String, unique=True, nullable=False)
+    id = mapped_column(Integer, primary_key=True)
+    customer_sample_name = mapped_column(String)
+    tube_barcode = mapped_column(String, unique=True, nullable=False)
 
 
 class Well(Base):
@@ -30,7 +30,7 @@ class Well(Base):
         CheckConstraint('col <= 12'),
     )
 
-    plate_barcode = Column(String, primary_key=True, nullable=False)
-    row = Column(Integer, primary_key=True, nullable=False)
-    col = Column(Integer, primary_key=True, nullable=False)
-    sample_id = Column(Integer, ForeignKey("samples.id"), nullable=False)
+    plate_barcode = mapped_column(String, primary_key=True, nullable=False)
+    row = mapped_column(Integer, primary_key=True, nullable=False)
+    col = mapped_column(Integer, primary_key=True, nullable=False)
+    sample_id = mapped_column(Integer, ForeignKey("samples.id"), nullable=False)
